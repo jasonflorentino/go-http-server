@@ -5,18 +5,18 @@ import (
 	"net"
 	"os"
 
+	"github.com/jasonflorentino/go-http-server/src/config"
+	"github.com/jasonflorentino/go-http-server/src/handlers"
 	"github.com/jasonflorentino/go-http-server/src/lib"
 )
 
 const PORT int = 4221
 const BUF_SIZE int = 1024
 
-var FILE_PATH string
-
 func main() {
 	args := lib.ToArgsMap(os.Args[1:])
 	fmt.Println("Args:", args)
-	FILE_PATH = args["--directory"]
+	config.FILE_PATH = args["--directory"]
 
 	l, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", PORT))
 	if err != nil {
@@ -63,59 +63,15 @@ func handleConnection(conn net.Conn) {
 	case len(req.Target) == 0:
 		conn.Write(lib.ToResponse(req, 200, nil))
 	case req.Target[0] == "echo":
-		status, body := handleEcho(req)
+		status, body := handlers.HandleEcho(req)
 		conn.Write(lib.ToResponse(req, status, body))
 	case req.Target[0] == "files":
-		status, body := handleFiles(req)
+		status, body := handlers.HandleFiles(req)
 		conn.Write(lib.ToResponse(req, status, body))
 	case req.Target[0] == "user-agent":
-		status, body := handleUserAgent(req)
+		status, body := handlers.HandleUserAgent(req)
 		conn.Write(lib.ToResponse(req, status, body))
 	default:
 		conn.Write(lib.ToResponse(req, 404, nil))
 	}
-}
-
-type status = lib.Status
-type body = lib.Body
-
-func handleEcho(req lib.Request) (status, body) {
-	if len(req.Target) < 2 {
-		return 400, nil
-	}
-	yell := req.Target[1]
-	return 200, yell
-}
-
-func handleFiles(req lib.Request) (status, body) {
-	if len(req.Target) < 2 {
-		return 400, nil
-	}
-	fileName := req.Target[1]
-	switch req.Method {
-	case "GET":
-		dat, err := os.ReadFile(fmt.Sprintf("%s%s", FILE_PATH, fileName))
-		if err != nil {
-			fmt.Println("Error reading file:", err.Error())
-			return 404, nil
-		}
-		return 200, dat
-	case "POST":
-		err := os.WriteFile(fmt.Sprintf("%s%s", FILE_PATH, fileName), []byte(req.Body), 0644)
-		if err != nil {
-			fmt.Println("Error writing file:", err.Error())
-			return 404, nil
-		}
-		return 201, nil
-	default:
-		return 400, nil
-	}
-}
-
-func handleUserAgent(req lib.Request) (status, body) {
-	userAgent := req.Headers["User-Agent"]
-	if userAgent == "" {
-		return 400, nil
-	}
-	return 200, userAgent
 }
