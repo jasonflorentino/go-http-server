@@ -11,7 +11,7 @@ import (
 
 type Request struct {
 	Method  string
-	Target  string
+	Target  []string
 	Version string
 	Headers map[string]string
 	Body    string
@@ -31,7 +31,7 @@ func ToRequest(req string) (Request, error) {
 	fmt.Println("> Body:", parts[1])
 	reqObj := Request{
 		Method:  reqLine[0],
-		Target:  reqLine[1],
+		Target:  toPaths(reqLine[1]),
 		Version: reqLine[2],
 		Headers: headers,
 		Body:    parts[1],
@@ -53,6 +53,16 @@ func ToRequest(req string) (Request, error) {
 		}
 	}
 	return reqObj, nil
+}
+
+func toPaths(path string) []string {
+	paths := make([]string, 0)
+	for _, p := range strings.Split(path, "/") {
+		if p != "" {
+			paths = append(paths, p)
+		}
+	}
+	return paths
 }
 
 type Status int
@@ -155,7 +165,7 @@ func getStatusMsg(status Status) string {
 	case 201:
 		return "201 Created"
 	case 400:
-		return "404 Bad Request"
+		return "400 Bad Request"
 	case 404:
 		return "404 Not Found"
 	case 500:

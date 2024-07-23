@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"strings"
 
 	"github.com/jasonflorentino/go-http-server/src/lib"
 )
@@ -60,15 +59,16 @@ func handleConnection(conn net.Conn) {
 	}
 
 	switch {
-	case req.Target == "/":
+	// len == 0 means root is requested
+	case len(req.Target) == 0:
 		conn.Write(lib.ToResponse(req, 200, nil))
-	case strings.HasPrefix(req.Target, "/echo/"):
+	case req.Target[0] == "echo":
 		status, body := handleEcho(req)
 		conn.Write(lib.ToResponse(req, status, body))
-	case strings.HasPrefix(req.Target, "/files"):
+	case req.Target[0] == "files":
 		status, body := handleFiles(req)
 		conn.Write(lib.ToResponse(req, status, body))
-	case strings.HasPrefix(req.Target, "/user-agent"):
+	case req.Target[0] == "user-agent":
 		status, body := handleUserAgent(req)
 		conn.Write(lib.ToResponse(req, status, body))
 	default:
@@ -80,13 +80,18 @@ type status = lib.Status
 type body = lib.Body
 
 func handleEcho(req lib.Request) (status, body) {
-	// TODO: Split out path parts
-	yell := req.Target[len("/echo/"):]
+	if len(req.Target) < 2 {
+		return 400, nil
+	}
+	yell := req.Target[1]
 	return 200, yell
 }
 
 func handleFiles(req lib.Request) (status, body) {
-	fileName := req.Target[len("/files/"):]
+	if len(req.Target) < 2 {
+		return 400, nil
+	}
+	fileName := req.Target[1]
 	switch req.Method {
 	case "GET":
 		dat, err := os.ReadFile(fmt.Sprintf("%s%s", FILE_PATH, fileName))
