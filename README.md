@@ -6,7 +6,7 @@ Jokes aside, this was so much fun to do and their platform felt natural and easy
 
 — Jason, July 2024
 
-### From their overview
+### From their overview:
 
 [HTTP](https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol) is the
 protocol that powers the web. In this challenge, you'll build a HTTP/1.1 server
@@ -35,3 +35,10 @@ curl -v -H "Accept-Encoding: gzip" http://localhost:4221/echo/hello | gzip -dc
 - Returns a file's contents (specified by the `--directory` arg)
 - Writes the request body to a file (specified by the `--directory` arg)
 - Handles gzip encoding the response body
+
+## Automated Tests
+Go provides its own `testing` package. Run tests (functions that start with `Test` in files with a `_test.go` suffix) by running the `go test` command:
+```bash
+: /src/handlers
+go test -v
+```

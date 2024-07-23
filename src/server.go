@@ -63,13 +63,13 @@ func handleConnection(conn net.Conn) {
 	case len(req.Target) == 0:
 		conn.Write(lib.ToResponse(req, 200, nil))
 	case req.Target[0] == "echo":
-		status, body := handlers.HandleEcho(req)
+		status, body := handlers.Echo(req)
 		conn.Write(lib.ToResponse(req, status, body))
 	case req.Target[0] == "files":
-		status, body := handlers.HandleFiles(req)
+		status, body := handlers.Files(req)
 		conn.Write(lib.ToResponse(req, status, body))
 	case req.Target[0] == "user-agent":
-		status, body := handlers.HandleUserAgent(req)
+		status, body := handlers.UserAgent(req)
 		conn.Write(lib.ToResponse(req, status, body))
 	default:
 		conn.Write(lib.ToResponse(req, 404, nil))

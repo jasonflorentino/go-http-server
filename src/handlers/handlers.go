@@ -11,7 +11,7 @@ import (
 type status = lib.Status
 type body = lib.Body
 
-func HandleEcho(req lib.Request) (status, body) {
+func Echo(req lib.Request) (status, body) {
 	if len(req.Target) < 2 {
 		return 400, nil
 	}
@@ -19,7 +19,7 @@ func HandleEcho(req lib.Request) (status, body) {
 	return 200, yell
 }
 
-func HandleFiles(req lib.Request) (status, body) {
+func Files(req lib.Request) (status, body) {
 	if len(req.Target) < 2 {
 		return 400, nil
 	}
@@ -44,7 +44,7 @@ func HandleFiles(req lib.Request) (status, body) {
 	}
 }
 
-func HandleUserAgent(req lib.Request) (status, body) {
+func UserAgent(req lib.Request) (status, body) {
 	userAgent := req.Headers["User-Agent"]
 	if userAgent == "" {
 		return 400, nil
